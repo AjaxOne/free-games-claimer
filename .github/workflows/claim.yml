@@ -1,0 +1,41 @@
+name: 每周领取 Epic 免费游戏
+
+on:
+  schedule:
+    # 每周五 09:00 北京时间（Epic 每周四深夜更新免费游戏）
+    - cron: '0 1 * * 5'
+  workflow_dispatch:
+
+jobs:
+  claim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Restore data (browser profile + claimed games)
+        uses: actions/cache@v4
+        with:
+          path: |
+            data
+            ~/.cache/ms-playwright
+          key: fgc-data-v1-${{ github.run_id }}
+          restore-keys: |
+            fgc-data-v1-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Claim Epic free games
+        env:
+          EG_EMAIL: ${{ secrets.EG_EMAIL }}
+          EG_PASSWORD: ${{ secrets.EG_PASSWORD }}
+          EG_OTPKEY: ${{ secrets.EG_OTPKEY }}
+        run: node epic-games
