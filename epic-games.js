@@ -72,6 +72,12 @@ try {
   ]);
 
   await page.goto(URL_CLAIM, { waitUntil: 'domcontentloaded' }); // 'domcontentloaded' faster than default 'load' https://playwright.dev/docs/api/class-page#page-goto
+  // [custom] debug: capture what the store page actually shows (diagnose bot checks on datacenter IPs)
+  try {
+    console.log('debug: url=' + page.url());
+    console.log('debug: title=' + await page.title());
+    await page.screenshot({ path: path.join(cfg.dir.browser, 'debug-claim-page.png') });
+  } catch (e) { console.log('debug capture failed: ' + e.message); }
 
   if (cfg.time) console.timeEnd('startup');
   if (cfg.time) console.time('login');
